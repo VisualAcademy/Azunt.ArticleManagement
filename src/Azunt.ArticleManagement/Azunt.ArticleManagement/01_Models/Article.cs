@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Configuration;
 
-namespace Azunt.ArticleManagement._01_Models
+namespace Azunt.ArticleManagement
 {
     /// <summary>
     /// [2] Model Class: Article 모델 클래스 == Articles 테이블과 일대일로 매핑 
