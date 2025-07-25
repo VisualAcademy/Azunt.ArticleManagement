@@ -4,6 +4,7 @@ using Azunt.Web.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Azunt.ArticleManagement; // 네임스페이스 임포트
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 var app = builder.Build();
+
+// Articles 테이블 직접 초기화 (마스터 DB 대상)
+// SQLite용 테이블 빌더 실행
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    ArticlesSqliteTableBuilder.Run(services);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

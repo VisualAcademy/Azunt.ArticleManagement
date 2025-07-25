@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Azunt.ArticleManagement
 {
-    public class ArticlesTableBuilder
+    public class ArticlesSqlServerTableBuilder
     {
         private readonly string _masterConnectionString;
-        private readonly ILogger<ArticlesTableBuilder> _logger;
+        private readonly ILogger<ArticlesSqlServerTableBuilder> _logger;
 
-        public ArticlesTableBuilder(string masterConnectionString, ILogger<ArticlesTableBuilder> logger)
+        public ArticlesSqlServerTableBuilder(string masterConnectionString, ILogger<ArticlesSqlServerTableBuilder> logger)
         {
             _masterConnectionString = masterConnectionString;
             _logger = logger;
@@ -96,7 +96,7 @@ namespace Azunt.ArticleManagement
                             [Content] NVARCHAR(MAX) NULL,                        -- 내용 => TODO: Not Null 고려
                             [IsPinned] BIT NULL DEFAULT(0),                      -- 공지글 여부
                             [CreatedBy] NVARCHAR(255) NULL,                      -- 등록자
-                            [Created] DATETIME DEFAULT(GETDATE()),              -- 생성일
+                            [Created] DATETIME DEFAULT(GETDATE()),               -- 생성일
                             [ModifiedBy] NVARCHAR(255) NULL,                     -- 수정자
                             [Modified] DATETIME NULL                             -- 수정일
                         );
@@ -115,8 +115,8 @@ namespace Azunt.ArticleManagement
                     var cmdInsertDefaults = new SqlCommand(@"
                         INSERT INTO [dbo].[Articles] (Title, Content, IsPinned, CreatedBy)
                         VALUES
-                            (N'Welcome to the Board', N'This is the first announcement.', 1, N'admin'),
-                            (N'Sample Post', N'Feel free to write articles here.', 0, N'user1');
+                            (N'Welcome to the Board', N'This is the first announcement.', 1, N'(System)'),
+                            (N'Sample Post', N'Feel free to write articles here.', 0, N'(System)');
                     ", connection);
 
                     int inserted = cmdInsertDefaults.ExecuteNonQuery();
@@ -129,7 +129,7 @@ namespace Azunt.ArticleManagement
         {
             try
             {
-                var logger = services.GetRequiredService<ILogger<ArticlesTableBuilder>>();
+                var logger = services.GetRequiredService<ILogger<ArticlesSqlServerTableBuilder>>();
                 var config = services.GetRequiredService<IConfiguration>();
 
                 string connectionString = !string.IsNullOrWhiteSpace(optionalConnectionString)
@@ -137,7 +137,7 @@ namespace Azunt.ArticleManagement
                     : config.GetConnectionString("DefaultConnection")
                       ?? throw new InvalidOperationException("DefaultConnection is not configured in appsettings.json.");
 
-                var builder = new ArticlesTableBuilder(connectionString, logger);
+                var builder = new ArticlesSqlServerTableBuilder(connectionString, logger);
 
                 if (forMaster)
                 {
@@ -150,7 +150,7 @@ namespace Azunt.ArticleManagement
             }
             catch (Exception ex)
             {
-                var fallbackLogger = services.GetService<ILogger<ArticlesTableBuilder>>();
+                var fallbackLogger = services.GetService<ILogger<ArticlesSqlServerTableBuilder>>();
                 fallbackLogger?.LogError(ex, "Error while processing Articles table.");
             }
         }
